@@ -1,12 +1,27 @@
 PYTHON ?= python
 VENV_DIR := .venv
 
-.PHONY: init env install login upload download train eval clean
+# Resolve the Python interpreter lazily:
+#   • honour an overriding PYTHON,
+#   • else use a local .venv if one exists,
+#   • else fall back to the neighbouring collab-workspace venv (known-good).
+ifeq ($(wildcard $(VENV_DIR)/bin/python),)
+VPY := ../collab-workspace/.venv/bin/python
+else
+VPY := ./$(VENV_DIR)/bin/python
+endif
+
+.PHONY: init env install login push-model push-dataset pull-model pull-dataset train eval clean
+
+## Show which interpreter the targets will use
+doctor:
+	@echo "Interpreter: $(VPY)"
+	@"$(VPY)" -c "import sys,huggingface_hub;print('huggingface_hub',huggingface_hub.__version__,'·','python',sys.version.split()[0])"
 
 ## Initialize everything
-init: env install
+init: doctor install
 
-## Create virtual environment
+## Create virtual environment (requires python3.X-venv/system pip)
 env:
 	$(PYTHON) -m venv $(VENV_DIR)
 
@@ -14,34 +29,45 @@ env:
 activate:
 	@echo "Source the venv: source $(VENV_DIR)/bin/activate"
 
-## Install dependencies
+## Install dependencies into the resolved interpreter
 install:
-	./$(VENV_DIR)/bin/pip install --upgrade pip
-	./$(VENV_DIR)/bin/pip install -r requirements.txt
-	./$(VENV_DIR)/bin/pip install -e .
+	"$(VPY)" -m pip install --upgrade pip
+	"$(VPY)" -m pip install -r requirements.txt
+	"$(VPY)" -m pip install -e .
 
-## Login to Hugging Face hub
+## Login to Hugging Face hub (via the modern `hf` CLI when available)
+define LOGIN_SH =
+	if [ -x "$$(dirname "$(VPY)")/hf" ]; then \
+	  echo "[+] Found modern 'hf' CLI — launching interactive login…"; \
+	  "$$(dirname "$(VPY)")/hf" auth login; \
+	else \
+	  echo "[!] Neither 'hf' nor 'huggingface-cli' is usable."; \
+	  echo "    Paste a WRITE token into .env as HF_TOKEN=..., or run:"; \
+	  echo "    curl -LsSf https://hf.co/cli/install.sh | bash"; \
+	  exit 1; \
+	fi
+endef
 login:
-	huggingface-cli login
+	$(LOGIN_SH)
 
 ## Push a local dir/model to HF Hub
 push-model:
-	HF_HUB_ENABLE_HF_TRANSFER=1 ./$(VENV_DIR)/bin/python scripts/push_to_hub.py --kind model
+	HF_HUB_ENABLE_HF_TRANSFER=1 "$(VPY)" scripts/push_to_hub.py --kind model
 
 push-dataset:
-	HF_HUB_ENABLE_HF_TRANSFER=1 ./$(VENV_DIR)/bin/python scripts/push_to_hub.py --kind dataset
+	HF_HUB_ENABLE_HF_TRANSFER=1 "$(VPY)" scripts/push_to_hub.py --kind dataset
 
 pull-model:
-	./$(VENV_DIR)/bin/python scripts/download_from_hub.py --kind model
+	"$(VPY)" scripts/download_from_hub.py --kind model
 
 pull-dataset:
-	./$(VENV_DIR)/bin/python scripts/download_from_hub.py --kind dataset
+	"$(VPY)" scripts/download_from_hub.py --kind dataset
 
 train:
-	./$(VENV_DIR)/bin/python scripts/train_example.py
+	"$(VPY)" scripts/train_example.py
 
 eval:
-	./$(VENV_DIR)/bin/python scripts/eval_example.py
+	"$(VPY)" scripts/eval_example.py
 
 clean:
 	rm -rf __pycache__ *.egg-info dist build
