@@ -11,12 +11,26 @@ else
 VPY := ./$(VENV_DIR)/bin/python
 endif
 
-.PHONY: init env install login push-model push-dataset pull-model pull-dataset train eval clean
+.PHONY: init env install login logout whoami push-model push-dataset pull-model pull-dataset train eval clean
+
+# Source .env (when present) so network-dependent targets inherit HF_TOKEN et al.
+ifneq ($(wildcard .env),)
+-include .env
+export
+endif
 
 ## Show which interpreter the targets will use
 doctor:
 	@echo "Interpreter: $(VPY)"
 	@"$(VPY)" -c "import sys,huggingface_hub;print('huggingface_hub',huggingface_hub.__version__,'·','python',sys.version.split()[0])"
+
+## Who owns the current Hub session?
+whoami:
+	@"$(VPY)" -c "from huggingface_hub import whoami; u=whoami(); print('Signed in as', u['name'], '\u2192 https://huggingface.co/'+u['name'])"
+
+## Forget the stored Hub credentials
+logout:
+	@if [ -x "$$(dirname "$(VPY)")/hf" ]; then "$$(dirname "$(VPY)")/hf" auth logout; else echo "Removing stored token…"; rm -f ~/.cache/huggingface/stored_tokens; fi
 
 ## Initialize everything
 init: doctor install
