@@ -7,11 +7,24 @@ __pycache__/
 .hydra/
 wandb/
 
-# Data / Models (large binaries tracked separately via Git-LFS)
+# Data / Models (large binaries via Git-LFS or HF Hub)
+# Keep large binaries out of GitHub by default; cards & scripts stay tracked
 models/*
 !models/.gitkeep
+!models/phishing_model/
+models/phishing_model/*
+!models/phishing_model/README.md
+!models/phishing_model/metadata.json
+!models/phishing_model/predict.py
+# Uncomment to track joblib via LFS:
+# !models/phishing_model/model.joblib
 data/*
 !data/.gitkeep
+!data/phishing_email/
+data/phishing_email/*
+!data/phishing_email/README.md
+# CSV is on HF Hub (Febriyansyah/phishing-emails-multilingual); uncomment to track via LFS:
+# !data/phishing_email/phishing_email_multilingual.csv
 logs/
 results/
 
