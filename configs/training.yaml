@@ -1,0 +1,21 @@
+---
+# Shared Hydra-free baseline knobs mirroring the CLI defaults.
+# Referenced primarily for human readability / future templating.
+runtime:
+  seed: 143
+  deterministic: true
+
+model:
+  family: distilbert
+  variant: distilbert-base-uncased
+  num_labels: 2
+
+training:
+  optimizer: adamw_torch
+  scheduler: cosine-with-restarts-off
+  accumulation_steps: 2
+  patience: 2
+
+integration:
+  hub_base_url: https://huggingface.co
+  enable_wandb_reporting: false

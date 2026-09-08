@@ -1,0 +1,30 @@
+# Virtual environment
+.venv/
+
+# Cache
+__pycache__/
+*.py[cod]
+.hydra/
+wandb/
+
+# Data / Models (large binaries tracked separately via Git-LFS)
+models/*
+!models/.gitkeep
+data/*
+!data/.gitkeep
+logs/
+results/
+
+# Secrets
+.env
+secrets.yaml
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Distribution
+dist/
+build/
+*.egg-info/

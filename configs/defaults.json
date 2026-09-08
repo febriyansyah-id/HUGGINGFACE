@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/janluke/json-config/main/docs/schema.json",
+  "note": "Shared constants consumed by the various scripts. Edit freely.",
+  "general": {
+    "random_seed": 141,
+    "verbosity": "INFO"
+  },
+  "paths": {
+    "data_dir": "./data",
+    "model_dir": "./models",
+    "export_dir": "./exports",
+    "result_dir": "./results"
+  },
+  "hardware": {
+    "prefers_gpu_if_available": true,
+    "fall_back_to_cpu": true
+  }
+}

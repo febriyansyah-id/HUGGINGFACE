@@ -1,0 +1,21 @@
+# Core Hugging Face ecosystem
+transformers>=4.46.0
+datasets>=3.0.0
+accelerate>=1.25.0
+peft>=0.16.0
+trl>=0.17.0
+tokenizers>=0.22.0
+safetensors>=0.26.0
+huggingface_hub>=0.35.0
+
+# Deep learning backend
+torch>=2.5.0
+
+# Quantization (CPU-friendly alternative)
+bitsandbytes>=0.45.0 ; platform_system != "Windows"
+
+# Utilities
+einops>=0.8.0
+rich>=13.9.0
+typer>=0.24.0
+python-dotenv>=1.23.0
